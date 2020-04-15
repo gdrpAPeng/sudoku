@@ -1,63 +1,58 @@
 
-// 八皇后问题
-var arr = Array(8).fill(0).map(() => Array(8).fill(0))
+// 初始化数组
+var initArray = Array(9).fill(0).map(() => Array(9).fill(0))
 var count = 0
-function dfs(deep) {
-    if(deep >= 8) {
+let lock = false
+
+dfs(initArray, 0, 0)
+console.log(count)
+
+function dfs(arr, x, y) {
+    if(x == 8 && y >= 9) {
         count++
+        console.log(arr)
+        lock = true
+        return
     }
-    else {
-        for(let i = 0; i < 8; i++) {
-            if(check(deep, i)) {
-                arr[deep][i] = 1
-                dfs(deep+1)
-                arr[deep][i] = 0
+    if(y == 9) {
+        y = 0
+        x++
+    }
+    if(arr[x][y] == 0) {
+        for(let i = 1; i <= 9; i++) {
+            if(check(arr, x, y, i)) {
+                arr[x][y] = i
+                dfs(arr, x, y+1)
+                if(lock) break // 跳出循环结束回溯
+                arr[x][y] = 0
             }
         }
+    } else {
+        dfs(arr, x, y+1)
     }
 }
-// 检查数字是否填过
-function check(x, y) {
-    // 横
-    for(let i = 0; i < 8; i++) {
-        if(arr[i][y] === 1) {
+
+// 检查所填数字是否符合要求
+function check(arr, x, y, value) {
+    // 横向重复
+    // 竖向重复
+    for(let i = 0; i < 9; i++) {
+        if(arr[x][i] === value || arr[i][y] === value) {
             return false
-        } 
+        }
     }
-    // 竖
-    for(let i = 0; i < 8; i++) {
-        if(arr[x][i] === 1) {
+    // 宫内重复
+    const startX = x - (x % 3)
+    const startY = y - (y % 3)
+    for(let i = 0; i < 3; i++) {
+        const numArr = [
+            arr[startX+i][startY],
+            arr[startX][startY+i],
+            arr[startX+i][startY+i]
+        ]
+        if(numArr.includes(value)) {
             return false
-        } 
-    }
-    // 左上 斜至 右下
-    for(let i = 0; i < 8; i++) {
-        if(x-i>=0 && y-i>=0) {
-            if(arr[x-i][y-i] === 1) {
-                return false
-            }
-        }
-        if(x+i<8 && y+i<8) {
-            if(arr[x+i][y+i] === 1) {
-                return false
-            }
-        }
-    }
-    // 右上 斜至 左下
-    for(let i = 0; i < 8; i++) {
-        if(x-i>=0 && y+i<8) {
-            if(arr[x-i][y+i] === 1) {
-                return false
-            }
-        }
-        if(x+i<8 && y-i<=0) {
-            if(arr[x+i][y-i] === 1) {
-                return false
-            }
         }
     }
     return true
 }
-
-dfs(0)
-console.log(count)
